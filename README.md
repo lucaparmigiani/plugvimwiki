@@ -2,7 +2,7 @@
 
 [中文](README-cn.md)
 
-- [Intro](#introduction)
+- [Intro](#intro)
 - [Screenshots](#screenshots)
 - [Installation](#installation)
     - [Prerequisites](#prerequisites)
@@ -28,6 +28,7 @@ VimWiki is a personal wiki for Vim -- a number of linked text files that have
 their own syntax highlighting. See the [VimWiki Wiki](https://vimwiki.github.io/vimwikiwiki/)
 for an example website built with VimWiki!
 
+For the latest features and fixes checkout the [dev branch](https://github.com/vimwiki/vimwiki/tree/dev).
 If you are interested in contributing see [this section](#helping-vimwiki).
 
 With VimWiki, you can:
@@ -39,8 +40,8 @@ With VimWiki, you can:
 - Export everything to HTML
 
 To do a quick start, press `<Leader>ww` (default is `\ww`) to go to your index
-wiki file. By default, it is located in `~/vimwiki/index.wiki`. See
-`:h vimwiki_list` for registering a different path/wiki.
+wiki file. By default, it is located in `~/vimwiki/index.wiki`. See `:h vimwiki_list`
+for registering a different path/wiki.
 
 Feed it with the following example:
 
@@ -76,10 +77,8 @@ The result should look something like:
 
 ## Installation
 
-VimWiki has been tested on **Vim >= 7.3**. It may work on older versions but
-will not be officially supported.  It is known to work on NeoVim, although
-it is likely to have
-[NeoVim-specific bugs](https://github.com/vimwiki/vimwiki/labels/neovim).
+VimWiki has been tested on **Vim >= 7.3**. It will likely work on older
+versions but will not be officially supported.
 
 ### Prerequisites
 
@@ -144,7 +143,7 @@ vim +PluginInstall +qall
 
 #### Manual Install
 
-Download the [zip archive](https://github.com/vimwiki/vimwiki/archive/dev.zip)
+Download the [zip archive](https://github.com/vimwiki/vimwiki/archive/master.zip)
 and extract it in `~/.vim/bundle/`
 
 Then launch Vim, run `:Helptags` and then `:help vimwiki` to verify it was
@@ -186,16 +185,6 @@ _italic_ -- italic text
 
 For other syntax elements, see `:h vimwiki-syntax`
 
-### Todo lists
-
-```text
-  - [.] Partially completed item with sub-tasks
-    - [X] Completed sub-task
-    - [ ] Incomplete sub-task
-    - [ ] Other incomplete sub-task
-  - [ ] Incomplete item
-```
-
 ## Key bindings
 
 ### Normal mode
@@ -233,13 +222,11 @@ more bindings.
 ## Changing Wiki Syntax
 
 VimWiki currently ships with 3 syntaxes: VimWiki (default), Markdown
-(markdown), and MediaWiki (media).  Of these, the native VimWiki syntax is
-best supported, followed by Markdown.  No promises are made for MediaWiki.
+(markdown), and MediaWiki (media).
 
 **NOTE:** Only the default syntax ships with a built-in HTML converter. For
 Markdown or MediaWiki see `:h vimwiki-option-custom_wiki2html`. Some examples
-and 3rd party tools are available
-[here](https://vimwiki.github.io/vimwikiwiki/Related%20Tools.html#Related%20Tools-External%20Tools).
+and 3rd party tools are available [here](https://vimwiki.github.io/vimwikiwiki/Related%20Tools.html#Related%20Tools-External%20Tools).
 
 If you would prefer to use either Markdown or MediaWiki syntaxes, set the
 following option in your `.vimrc`:
@@ -247,52 +234,26 @@ following option in your `.vimrc`:
 ```vim
 
 let g:vimwiki_list = [{'path': '~/vimwiki/',
-                      \ 'syntax': 'markdown', 'ext': 'md'}]
+                      \ 'syntax': 'markdown', 'ext': '.md'}]
 
 ```
-
-This option will treat all markdown files in your system as part of vimwiki
-(check `set filetype?`). Add
-
-```vim
-let g:vimwiki_global_ext = 0
-```
-
-to your `.vimrc` to restrict Vimwiki's operation to only those paths listed in
-`g:vimwiki_list`.  Other markdown files wouldn't be treated as wiki pages.
-See [g:vimwiki_global_ext](https://github.com/vimwiki/vimwiki/blob/619f04f89861c58e5a6415a4f83847752928252d/doc/vimwiki.txt#L2631).
-
-if you want to turn off support for other extension(for example, disabling
-accidently creating new wiki and link for normal markdown files), set the
-following option in your `.vimrc` before packadd vimwiki: 
-
-```vim
-let g:vimwiki_ext2syntax = {}
-```
-
-See [g:vimiki_ext2syntax](https://github.com/vimwiki/vimwiki/blob/619f04f89861c58e5a6415a4f83847752928252d/doc/vimwiki.txt#L2652)
 
 ## Getting help
 
 [GitHub issues](https://github.com/vimwiki/vimwiki/issues) are the primary
 method for raising bug reports or feature requests.
 
-Additional resources:
-
-  - The IRC channel [#vimwiki](ircs://irc.libera.chat:6697/vimwiki) on
-    irc.libera.chat is the "official" discussion and support channel
-    - [Connect via webchat](https://web.libera.chat/?channels=#vimwiki)
-  - [@vimwiki@wikis.world](https://wikis.world/@vimwiki) on the Fediverse
+Additional resources include the IRC channel [#vimwiki](https://webchat.freenode.net/?channels=#vimwiki) on Freenode
+([webchat](https://webchat.freenode.net/?channels=#vimwiki), also synced to Matrix/Riot: `#freenode_#vimwiki:matrix.org` and [Telegram](https://t.me/joinchat/JqBaKBfWs04qNVrp5oWcMg))
+or post to the [mailing list](https://groups.google.com/forum/#!forum/vimwiki).
 
 ## Helping VimWiki
 
 VimWiki has a lot of users but only very few recurring developers or people
 helping the community. Your help is therefore appreciated. Everyone can help!
-See [#625](https://github.com/vimwiki/vimwiki/issues/625) for information on how
-you can help.
+See [#625](https://github.com/vimwiki/vimwiki/issues/625) for information on how you can help.
 
-Also, take a look at [CONTRIBUTING.md](https://github.com/vimwiki/vimwiki/blob/master/CONTRIBUTING.md)
-and [design_notes.md](doc/design_notes.md)
+Also, take a look at [CONTRIBUTING.md](https://github.com/vimwiki/vimwiki/blob/master/CONTRIBUTING.md).
 
 ----
 

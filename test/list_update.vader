@@ -1,4 +1,4 @@
-# Task list update
+Include: vader_includes/vader_setup.vader
 
 Given vimwiki (Sample nested list, vimwiki syntax):
   * [ ] Top Level
@@ -188,4 +188,4 @@ Expect (Sub-child toggled, parents updated):
 
       * [X] Sub-sub-child
 
-# vim: sw=2:foldlevel=30:foldmethod=indent:
+Include: vader_includes/vader_teardown.vader

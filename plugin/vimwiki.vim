@@ -4,23 +4,21 @@
 " GetLatestVimScripts: 2226 1 :AutoInstall: vimwiki
 
 
-" Clause: load only once
 if exists('g:loaded_vimwiki') || &compatible
   finish
 endif
 let g:loaded_vimwiki = 1
 
-" Set to version number for release:
-let g:vimwiki_version = '2024.01.24'
+" Set to version number for release, otherwise -1 for dev-branch
+let s:plugin_vers = 2.5
 
 " Get the directory the script is installed in
 let s:plugin_dir = expand('<sfile>:p:h:h')
 
-" Save peace in the galaxy
 let s:old_cpo = &cpoptions
 set cpoptions&vim
 
-" Save autowriteall variable state
+
 if exists('g:vimwiki_autowriteall')
   let s:vimwiki_autowriteall_saved = g:vimwiki_autowriteall
 else
@@ -28,7 +26,7 @@ else
 endif
 
 
-" Autocommand called when the cursor leaves the buffer
+" this is called when the cursor leaves the buffer
 function! s:setup_buffer_leave() abort
   " don't do anything if it's not managed by Vimwiki (that is, when it's not in
   " a registered wiki and not a temporary wiki)
@@ -44,7 +42,7 @@ function! s:setup_buffer_leave() abort
 endfunction
 
 
-" Create a new temporary wiki for the current buffer
+" create a new temporary wiki for the current buffer
 function! s:create_temporary_wiki() abort
   let path = expand('%:p:h')
   let ext = '.'.expand('%:e')
@@ -69,7 +67,7 @@ function! s:create_temporary_wiki() abort
 endfunction
 
 
-" Autocommand called when Vim opens a new buffer with a known wiki
+" This function is called when Vim opens a new buffer with a known wiki
 " extension. Both when the buffer has never been opened in this session and
 " when it has.
 function! s:setup_new_wiki_buffer() abort
@@ -92,10 +90,11 @@ function! s:setup_new_wiki_buffer() abort
   " this makes that ftplugin/vimwiki.vim and afterwards syntax/vimwiki.vim are
   " sourced
   call vimwiki#u#ft_set()
+
 endfunction
 
 
-" Autocommand called when the cursor enters the buffer
+" this is called when the cursor enters the buffer
 function! s:setup_buffer_enter() abort
   " don't do anything if it's not managed by Vimwiki (that is, when it's not in
   " a registered wiki and not a temporary wiki)
@@ -107,7 +106,7 @@ function! s:setup_buffer_enter() abort
 endfunction
 
 
-" Autocommand called when the buffer enters a window or when running a  diff
+" this is called when the buffer enters a window or when running a  diff
 function! s:setup_buffer_win_enter() abort
   " don't do anything if it's not managed by Vimwiki (that is, when it's not in
   " a registered wiki and not a temporary wiki)
@@ -123,14 +122,13 @@ function! s:setup_buffer_win_enter() abort
 endfunction
 
 
-" Help syntax reloading
 function! s:setup_cleared_syntax() abort
   " highlight groups that get cleared
   " on colorscheme change because they are not linked to Vim-predefined groups
   hi def VimwikiBold term=bold cterm=bold gui=bold
   hi def VimwikiItalic term=italic cterm=italic gui=italic
-  hi def VimwikiBoldItalic term=bold,italic cterm=bold,italic gui=bold,italic
-  hi def VimwikiUnderline term=underline cterm=underline gui=underline
+  hi def VimwikiBoldItalic term=bold cterm=bold gui=bold,italic
+  hi def VimwikiUnderline gui=underline
   if vimwiki#vars#get_global('hl_headers') == 1
     for i in range(1,6)
       execute 'hi def VimwikiHeader'.i.' guibg=bg guifg='
@@ -142,7 +140,6 @@ function! s:setup_cleared_syntax() abort
 endfunction
 
 
-" Return: list of extension known vy vimwiki
 function! s:vimwiki_get_known_extensions() abort
   " Getting all extensions that different wikis could have
   let extensions = {}
@@ -196,8 +193,8 @@ function! s:set_windowlocal_options() abort
     endif
   endif
 
-  if exists('+conceallevel')
-    let &l:conceallevel = vimwiki#vars#get_global('conceallevel')
+  if vimwiki#vars#get_global('conceallevel') && exists('+conceallevel')
+    let &conceallevel = vimwiki#vars#get_global('conceallevel')
   endif
 
   if vimwiki#vars#get_global('auto_chdir')
@@ -206,29 +203,30 @@ function! s:set_windowlocal_options() abort
 endfunction
 
 
-" Echo vimwiki version
-" Called by :VimwikiShowVersion
 function! s:get_version() abort
-  echo 'Version: ' . g:vimwiki_version
-  let l:plugin_rev    = system('git --git-dir ' . s:plugin_dir . '/.git rev-parse --short HEAD')
-  let l:plugin_branch = system('git --git-dir ' . s:plugin_dir . '/.git rev-parse --abbrev-ref HEAD')
-  let l:plugin_date   = system('git --git-dir ' . s:plugin_dir . '/.git show -s --format=%ci')
-  if v:shell_error == 0
-    echo 'Os: ' . vimwiki#u#os_name()
-    echo 'Vim: ' . v:version
-    echo 'Branch: ' . l:plugin_branch
-    echo 'Revision: ' . l:plugin_rev
-    echo 'Date: ' . l:plugin_date
+  if s:plugin_vers != -1
+    echo 'Stable version: ' . string(s:plugin_vers)
   else
-    echo 'Unable to retrieve repository info'
+    let l:plugin_rev    = system('git --git-dir ' . s:plugin_dir . '/.git rev-parse --short HEAD')
+    let l:plugin_branch = system('git --git-dir ' . s:plugin_dir . '/.git rev-parse --abbrev-ref HEAD')
+    let l:plugin_date   = system('git --git-dir ' . s:plugin_dir . '/.git show -s --format=%ci')
+    if v:shell_error == 0
+      echo 'Os: ' . vimwiki#u#os_name()
+      echo 'Vim: ' . v:version
+      echo 'Branch: ' . l:plugin_branch
+      echo 'Revision: ' . l:plugin_rev
+      echo 'Date: ' . l:plugin_date
+    else
+      echo 'Unknown version'
+    endif
   endif
 endfunction
 
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Initialization of Vimwiki starts here.
-" Make sure everything below does not cause autoload/vimwiki/base.vim
-" to be loaded
+
+" Initialization of Vimwiki starts here. Make sure everything below does not
+" cause autoload/vimwiki/base.vim to be loaded
+
 call vimwiki#vars#init()
 
 
@@ -253,59 +251,58 @@ if !exists('*VimwikiWikiIncludeHandler')
 endif
 
 
-" Write a level 1 header to new wiki files
+" write a level 1 header to new wiki files
 " a:fname should be an absolute filepath
 function! s:create_h1(fname) abort
-  " Clause: Don't do anything for unregistered wikis
-  let idx = vimwiki#vars#get_bufferlocal('wiki_nr')
-  if idx == -1
-    return
-  endif
+  if vimwiki#vars#get_global('auto_header')
+    let idx = vimwiki#vars#get_bufferlocal('wiki_nr')
 
-  " Clause: no auto_header
-  if !vimwiki#vars#get_global('auto_header')
-    return
-  endif
+    " don't do anything for unregistered wikis
+    if idx == -1
+      return
+    endif
 
-  " Clause: don't create header for the diary index page
-  if vimwiki#path#is_equal(a:fname,
-        \ vimwiki#vars#get_wikilocal('path', idx).vimwiki#vars#get_wikilocal('diary_rel_path', idx).
-        \ vimwiki#vars#get_wikilocal('diary_index', idx).vimwiki#vars#get_wikilocal('ext', idx))
-    return
-  endif
+    " don't create header for the diary index page
+    if vimwiki#path#is_equal(a:fname,
+          \ vimwiki#vars#get_wikilocal('path', idx).vimwiki#vars#get_wikilocal('diary_rel_path', idx).
+          \ vimwiki#vars#get_wikilocal('diary_index', idx).vimwiki#vars#get_wikilocal('ext', idx))
+      return
+    endif
 
-  " Get tail of filename without extension
-  let title = expand('%:t:r')
+    " get tail of filename without extension
+    let title = expand('%:t:r')
 
-  " Clause: don't insert header for index page
-  if title ==# vimwiki#vars#get_wikilocal('index', idx)
-    return
-  endif
+    " don't insert header for index page
+    if title ==# vimwiki#vars#get_wikilocal('index', idx)
+      return
+    endif
 
-  " Don't substitute space char for diary pages
-  if title !~# '^\d\{4}-\d\d-\d\d'
-    " NOTE: it is possible this could remove desired characters if the 'links_space_char'
-    " character matches characters that are intentionally used in the title.
-    let title = substitute(title, vimwiki#vars#get_wikilocal('links_space_char'), ' ', 'g')
-  endif
+    " don't substitute space char for diary pages
+    if title !~# '^\d\{4}-\d\d-\d\d'
+      " NOTE: it is possible this could remove desired characters if the 'links_space_char'
+      " character matches characters that are intentionally used in the title.
+      let title = substitute(title, vimwiki#vars#get_wikilocal('links_space_char'), ' ', 'g')
+    endif
 
-  " Insert the header
-  if vimwiki#vars#get_wikilocal('syntax') ==? 'markdown'
-    keepjumps call append(0, '# ' . title)
-    for _ in range(vimwiki#vars#get_global('markdown_header_style'))
-      keepjumps call append(1, '')
-    endfor
-  else
-    keepjumps call append(0, '= ' . title . ' =')
+    " insert the header
+    if vimwiki#vars#get_wikilocal('syntax') ==? 'markdown'
+      keepjumps call append(0, '# ' . title)
+      for _ in range(vimwiki#vars#get_global('markdown_header_style'))
+        keepjumps call append(1, '')
+      endfor
+    else
+      keepjumps call append(0, '= ' . title . ' =')
+    endif
   endif
 endfunction
 
 " Define autocommands for all known wiki extensions
+
 let s:known_extensions = s:vimwiki_get_known_extensions()
 
 if index(s:known_extensions, '.wiki') > -1
   augroup filetypedetect
-    " Clear FlexWiki's stuff
+    " clear FlexWiki's stuff
     au! * *.wiki
   augroup end
 endif
@@ -329,6 +326,7 @@ augroup vimwiki
   " autowrap tables.
   if vimwiki#vars#get_global('table_auto_fmt')
     exe 'autocmd InsertLeave '.pat.' call vimwiki#tbl#format(line("."), 2)'
+    exe 'autocmd InsertEnter '.pat.' call vimwiki#tbl#reset_tw(line("."))'
   endif
   if vimwiki#vars#get_global('folding') =~? ':quick$'
     " from http://vim.wikia.com/wiki/Keep_folds_closed_while_inserting_text
@@ -343,7 +341,6 @@ augroup vimwiki
 augroup END
 
 
-" Declare global commands
 command! VimwikiUISelect call vimwiki#base#ui_select()
 
 " these commands take a count e.g. :VimwikiIndex 2
@@ -359,29 +356,25 @@ command! -count=0 VimwikiDiaryIndex
       \ call vimwiki#diary#goto_diary_index(<count>)
 
 command! -count=0 VimwikiMakeDiaryNote
-      \ call vimwiki#diary#make_note(<count>, 5)
+      \ call vimwiki#diary#make_note(<count>)
 
 command! -count=0 VimwikiTabMakeDiaryNote
       \ call vimwiki#diary#make_note(<count>, 1)
 
 command! -count=0 VimwikiMakeYesterdayDiaryNote
       \ call vimwiki#diary#make_note(<count>, 0,
-      \ vimwiki#diary#diary_date_link(localtime(), -1, <count>))
+      \ vimwiki#diary#diary_date_link(localtime() - 60*60*24))
 
 command! -count=0 VimwikiMakeTomorrowDiaryNote
       \ call vimwiki#diary#make_note(<count>, 0,
-      \ vimwiki#diary#diary_date_link(localtime(), 1, <count>))
+      \ vimwiki#diary#diary_date_link(localtime() + 60*60*24))
 
 command! VimwikiDiaryGenerateLinks
       \ call vimwiki#diary#generate_diary_section()
 
 command! VimwikiShowVersion call s:get_version()
 
-command! -nargs=* -complete=customlist,vimwiki#vars#complete
-      \ VimwikiVar call vimwiki#vars#cmd(<q-args>)
 
-
-" Declare global maps
 " <Plug> global definitions
 nnoremap <silent><script> <Plug>VimwikiIndex
     \ :<C-U>call vimwiki#base#goto_index(v:count)<CR>
@@ -394,22 +387,21 @@ nnoremap <silent><script> <Plug>VimwikiDiaryIndex
 nnoremap <silent><script> <Plug>VimwikiDiaryGenerateLinks
     \ :VimwikiDiaryGenerateLinks<CR>
 nnoremap <silent><script> <Plug>VimwikiMakeDiaryNote
-    \ :<C-U>call vimwiki#diary#make_note(v:count, 5)<CR>
+    \ :<C-U>call vimwiki#diary#make_note(v:count)<CR>
 nnoremap <silent><script> <Plug>VimwikiTabMakeDiaryNote
     \ :<C-U>call vimwiki#diary#make_note(v:count, 1)<CR>
 nnoremap <silent><script> <Plug>VimwikiMakeYesterdayDiaryNote
     \ :<C-U>call vimwiki#diary#make_note(v:count, 0,
-    \ vimwiki#diary#diary_date_link(localtime(), -1, v:count))<CR>
+    \ vimwiki#diary#diary_date_link(localtime() - 60*60*24))<CR>
 nnoremap <silent><script> <Plug>VimwikiMakeTomorrowDiaryNote
     \ :<C-U>call vimwiki#diary#make_note(v:count, 0,
-    \ vimwiki#diary#diary_date_link(localtime(), 1, v:count))<CR>
+    \ vimwiki#diary#diary_date_link(localtime() + 60*60*24))<CR>
 
+" get the user defined prefix (default <leader>w)
+let s:map_prefix = vimwiki#vars#get_global('map_prefix')
 
-" Set default global key mappings
+" default global key mappings
 if str2nr(vimwiki#vars#get_global('key_mappings').global)
-  " Get the user defined prefix (default <leader>w)
-  let s:map_prefix = vimwiki#vars#get_global('map_prefix')
-
   call vimwiki#u#map_key('n', s:map_prefix . 'w', '<Plug>VimwikiIndex', 2)
   call vimwiki#u#map_key('n', s:map_prefix . 't', '<Plug>VimwikiTabIndex', 2)
   call vimwiki#u#map_key('n', s:map_prefix . 's', '<Plug>VimwikiUISelect', 2)
@@ -422,7 +414,6 @@ if str2nr(vimwiki#vars#get_global('key_mappings').global)
 endif
 
 
-" Build global wiki menu (GUI)
 function! s:build_menu(topmenu) abort
   let wnamelist = []
   for idx in range(vimwiki#vars#number_of_wikis())
@@ -451,8 +442,6 @@ function! s:build_menu(topmenu) abort
   endfor
 endfunction
 
-
-" Build global table menu (GUI)
 function! s:build_table_menu(topmenu) abort
   exe 'menu '.a:topmenu.'.-Sep- :'
   exe 'menu '.a:topmenu.'.Table.Create\ (enter\ cols\ rows) :VimwikiTable '
@@ -464,7 +453,6 @@ function! s:build_table_menu(topmenu) abort
 endfunction
 
 
-" Build Menus now
 if !empty(vimwiki#vars#get_global('menu'))
   call s:build_menu(vimwiki#vars#get_global('menu'))
   call s:build_table_menu(vimwiki#vars#get_global('menu'))
@@ -478,5 +466,4 @@ if vimwiki#vars#get_global('use_calendar')
 endif
 
 
-" Restore peace in the galaxy
 let &cpoptions = s:old_cpo
